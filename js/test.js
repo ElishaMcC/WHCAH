@@ -1,47 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <title>We Have Chuzzle at Home</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/ripoff.css">
-</head>
-
-<body>
-    <div id="playSpace">
-    <table id="grid"></table>
-    <button id="fallButton">Apply Gravity</button>
-    </div>
-<!--
-<meta charset="UTF-8">
-<title>Falling Table Cells</title>
-<style>
-  table {
-    border-collapse: collapse;
-    margin: 20px auto;
-  }
-  td {
-    width: 50px;
-    height: 50px;
-    border: 1px solid #888;
-    text-align: center;
-    vertical-align: middle;
-    transition: background 0.3s, transform 0.3s;
-  }
-  .filled {
-    background: cornflowerblue;
-    color: white;
-  }
-</style>
-</head>
-<body>
-
-<table id="grid"></table>
-<button id="fallButton">Apply Gravity</button>
-
-<script>
 const rows = 6;
 const cols = 5;
 const grid = document.getElementById('grid');
@@ -85,9 +41,4 @@ function applyGravity() {
     }
   }
 }
-
-document.getElementById('fallButton').addEventListener('click', applyGravity);-->
-    <script src="js/test.js"></script>
-</body>
-
-</html>
+  document.getElementById('fallButton').addEventListener('click', applyGravity);
