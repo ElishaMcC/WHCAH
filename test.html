@@ -3,15 +3,35 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>We Have Chuzzle at Home</title>
+    <title>Test Match-3</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/ripoff.css">
+    <link rel="stylesheet" href="css/test.css">
 </head>
 
 <body>
     <div id="playSpace">
-    <table id="grid"></table>
+        <table id="grid"></table>
+        <dialog id="RulesA" class="rulesBox">
+            <h2>How to Play:</h2>
+            <p>Click and drag with your mouse or finger to move a column or row.</p>
+            <button class="next">Next</button><button class="close">Close</button>
+        </dialog>
+        <dialog id="RulesB" class="rulesBox">
+            <h2>How to Play:</h2>
+            <p>Match 3 or more gems to score!</p>
+            <button class="next">Next</button><button class="close">Close</button>
+        </dialog>
+        <dialog id="RulesC" class="rulesBox">
+            <h2>How to Play:</h2>
+            <p>No moves? Double click a gem to break it! (You will not earn points for breaking a gem)</p>
+            <button class="next">Next</button><button class="close">Close</button>
+        </dialog>
+        <dialog id="RulesD" class="rulesBox">
+            <h2>How to Play:</h2>
+            <p>Watch the clock! Score points to add more time!</p>
+            <button class="close">Play</button>
+        </dialog>
     </div>
     <script src="js/test.js"></script>
 </body>
