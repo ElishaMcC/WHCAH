@@ -17,28 +17,80 @@
             <dialog id="RulesA" class="rulesBox">
                 <h2>How to Play:</h2>
                 <p>Click and drag with your mouse or finger to move a column or row.</p>
+                <p>Match 3 or more gems to score!</p>
+                <div id="example-box">
+                <table>
+                    <tr>
+                        <td><img src="resources/GemH.png"></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><img src="resources/GemH.png"></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><img src="resources/GemH.png"></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+                <table>
+                    <tr>
+                        <td><img src="resources/GemI.png"></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><img src="resources/GemI.png"></td>
+                        <td><img src="resources/GemI.png"></td>
+                        <td></td>
+                    </tr>
+                </table>
+                </div>
                 <button class="next">Next</button><button class="close">Close</button>
             </dialog>
             <dialog id="RulesB" class="rulesBox">
                 <h2>How to Play:</h2>
-                <p>Match 3 or more gems to score!</p>
+                <p>No moves? Double click a gem to break it! (You will not earn points for breaking a gem)</p>
                 <button class="next">Next</button><button class="close">Close</button>
             </dialog>
             <dialog id="RulesC" class="rulesBox">
                 <h2>How to Play:</h2>
-                <p>No moves? Double click a gem to break it! (You will not earn points for breaking a gem)</p>
+                <p>Watch the clock! Score points to add more time! <br>
+                    You have 1 minute!</p>
                 <button class="next">Next</button><button class="close">Close</button>
             </dialog>
             <dialog id="RulesD" class="rulesBox">
                 <h2>How to Play:</h2>
-                <p>Watch the clock! Score points to add more time! <br>
-                    You have 1 minute!</p>
+                <p>Press <img src="resources/pauseA.png"> to pause and
+                    <img src="resources/rules.png"> to view the rules again
+                </p>
                 <button class="close">Play</button>
+            </dialog>
+
+            <dialog id="pauseScreen" class="rulesBox">
+                <h2>Game Paused</h2>
+                <p>Watch the clock! Score points to add more time! <br>
+                    Tip: A higher combo grants more time!</p>
+                <button class="close">Resume</button>
+            </dialog>
+
+            <dialog id="gameOver" class="rulesBox">
+                <h2>Game Over...</h2>
+                <div id="highscores"></div>
+                <p id="random-tip"></p>
+
             </dialog>
         </div>
         <div id="ui">
             <div id="score">Score: <span id="displayScore">0</span></div>
             <div id="combo">Combo: <span id="displayMult">0</span></div>
+        </div>
+        <div id="pause-ui">
+            <div id="pause"><input type="image" class="img-button" src="resources/pauseA.png"></div>
+            <div id="rules"><input type="image" class="img-button" src="resources/rules.png"></div>
         </div>
         <div id="timer-ui">
             <div id="timer">Time Left: <span id="time">0:00</span></div>

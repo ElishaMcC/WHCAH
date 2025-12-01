@@ -7,7 +7,7 @@ body {
     position: relative;
 }
 
-#game{
+#game {
     position: relative;
     display: inline-block;
     user-select: none;
@@ -26,9 +26,11 @@ body {
 }
 
 
-#ui, #timer-ui{
+#ui,
+#timer-ui,
+#pause-ui {
     width: min(25vh, 15vw);
-    height: min(25vh, 15vw);;
+    height: min(25vh, 15vw);
     position: absolute;
     background-color: blueviolet;
     border-radius: 10px;
@@ -38,14 +40,22 @@ body {
     justify-content: center;
     text-align: center;
 }
-#ui{
+
+#ui {
     top: 0;
     left: 100%;
 }
-#timer-ui{
+
+#timer-ui {
     bottom: 0;
     left: 100%;
 }
+
+#pause-ui {
+    bottom: 45%;
+    left: 100%;
+}
+
 
 #grid {
     position: relative;
@@ -53,15 +63,22 @@ body {
     height: 600px;
 }
 
-.cell{
+.cell {
     position: absolute;
     transition: transform .2s ease;
     cursor: grab;
     width: 100px;
     height: 100px;
+
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
-
+.img-button {
+    width: 45%;
+    height: auto;
+}
 
 .score-popup {
     position: absolute;
@@ -71,74 +88,97 @@ body {
     font-size: 2em;
     color: black;
     font-weight: bold;
-    text-shadow: 0 0 1px , 0 0 2px yellow;
+    text-shadow: 0 0 1px, 0 0 2px yellow;
     animation: fadeUp 1s ease-out forwards;
 }
 
 .time-popup {
     position: absolute;
-    top: 30px;
     left: 50%;
+    top: 100%;
     transform: translateX(-50%);
     font-size: 2em;
     color: black;
     font-weight: bold;
-    text-shadow: 0 0 1px , 0 0 2px lime;
+    text-shadow: 0 0 1px, 0 0 2px lime;
     animation: fadeUp 1s ease-out forwards;
 }
 
-.gemA {
-    background-color: blue;
+.rulesBox {
+    border-radius: 10px;
+    background-color: #FFB343;
+}
 
+#example-box {
+    display: flex;
+}
+
+#example-box table td {
+    width: 50px;
+    height: 50px;
+    border: 1px solid transparent;
+    padding: 0;
+    margin: 0;
+    line-height: 0;
+}
+
+#example-box table td img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+
+#RulesD p img {
+    height: 3em;
+    width: auto;
+    vertical-align: middle;
+}
+
+.rulesBox::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    transition: background 0.3s ease;
+}
+
+.gemA {
+    background-image: url("../resources/GemA.png");
 }
 
 .gemB {
-    background-color: red;
-
+    background-image: url("../resources/GemB.png");
 }
 
 .gemC {
-    background-color: yellow;
-
+    background-image: url("../resources/GemC.png");
 }
 
 .gemD {
-    background-color: green;
-
+    background-image: url("../resources/GemD.png");
 }
 
 .gemE {
-    background-color: orange;
-
+    background-image: url("../resources/GemE.png");
 }
 
 .gemF {
-    background-color: purple;
-
+    background-image: url("../resources/GemF.png");
 }
 
 .gemG {
-    background-color: white;
-
+    background-image: url("../resources/GemG.png");
 }
 
 .gemH {
-    background-color: cyan;
-
+    background-image: url("../resources/GemH.png");
 }
 
 .gemI {
-    background-color: grey;
-
+    background-image: url("../resources/GemI.png");
 }
 
 .gemJ {
-    background-color: pink;
-
-}
-
-.empty {
-    background-color: burlywood;
+    background-image: url("../resources/GemJ.png");
 }
 
 @keyframes fadeUp {
@@ -154,14 +194,23 @@ body {
 }
 
 @media (max-width: 1200px) {
-    #ui, #timer-ui {
-        left: 90%;        /* move UI closer to play area */
-        margin-left: 0;   /* cancel extra margin if you added one */
+
+    #ui,
+    #timer-ui,
+    #pause-ui {
+        left: 90%;
+        /* move UI closer to play area */
+        margin-left: 0;
+        /* cancel extra margin */
     }
 }
 
 @media (max-width: 900px) {
-    #ui, #timer-ui {
-        left: 85%;        /* even closer for smaller windows */
+
+    #ui,
+    #timer-ui,
+    #pause-ui {
+        left: 85%;
+        opacity: 90%;
     }
 }

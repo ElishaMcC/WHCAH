@@ -8,6 +8,16 @@ const gemsList = [
     "gemF", "gemG", "gemH", "gemI", "gemJ"
 ];
 
+const tipList = [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+]
+
 const grid = document.getElementById("grid");
 const cells = [];
 const board = [];
@@ -27,17 +37,21 @@ var time = 60;
 let moveMadeMatch = false;
 
 
-// ======================= UI / HELPERS ==========================
+// ======================= UI ==============================
 const e = document.getElementsByClassName('close');
 const closeA = e[0];
 const closeB = e[1];
 const closeC = e[2];
 const closeD = e[3];
+const resume = e[4];
 
 const n = document.getElementsByClassName('next');
 const nextA = n[0];
 const nextB = n[1];
 const nextC = n[2];
+
+const pause = document.getElementById('pause');
+const rules = document.getElementById('rules');
 
 function randomGem() {
     return gemsList[Math.floor(Math.random() * gemsList.length)];
@@ -45,6 +59,21 @@ function randomGem() {
 
 function delay(ms) {
     return new Promise(res => setTimeout(res, ms));
+}
+
+function pauseGame() {
+    pauseScreen.showModal();
+    running = false;
+}
+
+function RulesPauseGame() {
+    RulesA.showModal();
+    running = false;
+}
+
+function resumeGame() {
+    pauseScreen.close();
+    timerStart();
 }
 
 function Update() {
@@ -58,7 +87,7 @@ function showScorePopup(score, mult) {
         popup.textContent = `Combo! ${score} × ${mult}!`;
         popup.className = 'score-popup';
     } else if (mult <= 1 && score > 0) {
-        popup.textContent = `+ ${score}!`;
+        popup.textContent = `+ ${score} pts!`;
         popup.className = 'score-popup';
     }
 
@@ -95,7 +124,7 @@ function tick(x) {
         loop = requestAnimationFrame(tick);
     } else {
         running = false;
-        // =========================Place Game Over Dialog here================
+        gameOver.showModal();
     }
 }
 
@@ -105,7 +134,7 @@ function addTime(a) {
     let timePop = document.createElement('div');
     timePop.className = "time-popup";
     timePop.textContent = `+${a.toFixed(2)}s`;
-    document.body.appendChild(pop);
+    document.getElementById("timer-ui").appendChild(timePop);
     setTimeout(() => pop.remove(), 800);
 }
 
@@ -339,15 +368,19 @@ async function stabilize() {
 
 // ======================= RULES POPUPS ==========================
 RulesA.showModal();
+makeGrid();
 
 nextA.addEventListener("click", () => { RulesA.close(); RulesB.showModal(); });
 nextB.addEventListener("click", () => { RulesB.close(); RulesC.showModal(); });
 nextC.addEventListener("click", () => { RulesC.close(); RulesD.showModal(); });
+pause.addEventListener("click", pauseGame);
+rules.addEventListener("click", RulesPauseGame);
 
-closeA.addEventListener("click", () => { RulesA.close(); makeGrid(); timerStart(); });
-closeB.addEventListener("click", () => { RulesB.close(); makeGrid(); timerStart(); });
-closeC.addEventListener("click", () => { RulesC.close(); makeGrid(); timerStart(); });
-closeD.addEventListener("click", () => { RulesD.close(); makeGrid(); timerStart(); });
+closeA.addEventListener("click", () => { RulesA.close(); matchCheck(); timerStart();});
+closeB.addEventListener("click", () => { RulesB.close(); matchCheck(); timerStart();});
+closeC.addEventListener("click", () => { RulesC.close(); matchCheck(); timerStart();});
+closeD.addEventListener("click", () => { RulesD.close(); matchCheck(); timerStart();});
+resume.addEventListener("click", resumeGame);
 
 
 // ======================= GRID INITIALIZATION ==========================
@@ -371,8 +404,6 @@ function makeGrid() {
             cells[r][c] = el;
         }
     }
-
-    matchCheck();
 }
 
 
@@ -429,11 +460,15 @@ grid.addEventListener("mouseup", async e => {
     moveMadeMatch = false;
     await matchCheck();
 
-    if (moveMadeMatch) {
+    if(moveMadeMatch && totalCombo >= 10){
+        addTime(scoreTime);
+    }
+    else if (moveMadeMatch && totalCombo < 10) {
         totalCombo++;
         addTime(scoreTime);
     }
     else totalCombo = 0;
+    Update();
 });
 
 grid.addEventListener("dblclick", async e => {
@@ -452,6 +487,6 @@ grid.addEventListener("dblclick", async e => {
     Update();
     moveMadeMatch = false;
     await matchCheck();
-    if (moveMadeMatch) totalCombo++;
-    else totalCombo = 0;
+    if (!moveMadeMatch) totalCombo = 0;
+    Update();
 });
