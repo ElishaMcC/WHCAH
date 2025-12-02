@@ -9,8 +9,8 @@ const gemsList = [
 ];
 
 const tipList = [
-    "",
-    "",
+    "Be careful, breaking a gem costs 1s, and breaks your combo too...",
+    "In a pinch? Double clicking removes locks from gems!",
     "",
     "",
     "",
@@ -33,7 +33,7 @@ let totalScore = 0;
 let totalCombo = 0;
 var time = 60;
 
-
+let lockToast = false;
 let moveMadeMatch = false;
 
 
@@ -53,9 +53,6 @@ const nextC = n[2];
 const pause = document.getElementById('pause');
 const rules = document.getElementById('rules');
 
-function randomGem() {
-    return gemsList[Math.floor(Math.random() * gemsList.length)];
-}
 
 function delay(ms) {
     return new Promise(res => setTimeout(res, ms));
@@ -95,6 +92,42 @@ function showScorePopup(score, mult) {
     setTimeout(() => popup.remove(), 1000);
 }
 
+// ==========================BACKEND FUNCTIONS=================================================================
+function randomGem() {
+    return gemsList[Math.floor(Math.random() * gemsList.length)];
+}
+
+function locked(gem) {
+    return gem === "locked";
+}
+
+function showLockToast() {
+    if (lockToast) {
+        return;
+    }
+    const tX = document.createElement("div");
+    tX.className = "lock-toast";
+    tX.textContent = "⚠This is a locked gem! This column and row cannot be moved until a match is made beside it!";
+    document.body.appendChild(tX);
+
+    lockToast = true;
+    setTimeout(() => tX.remove(), 5000);
+}
+
+function unlock(r, c){
+    if(!locked(board[r][c])) return;
+    const newGem = randomGem();
+    board[r][c] = newGem;
+
+    const el = cells[r][c];
+    el.classList.remove("locked");
+    el.className = "cell " + newGem;
+}
+
+function chooseTip(){
+    
+}
+
 function timerStart() {
     if (running) return;
     running = true;
@@ -130,12 +163,20 @@ function tick(x) {
 
 function addTime(a) {
     time += a;
-
     let timePop = document.createElement('div');
     timePop.className = "time-popup";
     timePop.textContent = `+${a.toFixed(2)}s`;
     document.getElementById("timer-ui").appendChild(timePop);
-    setTimeout(() => pop.remove(), 800);
+    setTimeout(() => timePop.remove(), 800);
+}
+
+function removeTime() {
+    time -= 1;
+    let timePop = document.createElement('div');
+    timePop.className = "bad-time-popup";
+    timePop.textContent = `-1s`;
+    document.getElementById("timer-ui").appendChild(timePop);
+    setTimeout(() => timePop.remove(), 800);
 }
 
 
@@ -159,6 +200,9 @@ function move(fromR, fromC, toR, toC) {
 
 // ======================= SHIFT ROW / COL ==========================
 function shiftRow(r, dir) {
+    for (let i = 0; i < cols; i++) {
+        if (locked(board[r][i])) return;
+    }
     if (dir > 0) {
         const lastGem = board[r][cols - 1];
         const lastEl = cells[r][cols - 1];
@@ -187,6 +231,9 @@ function shiftRow(r, dir) {
 }
 
 function shiftCol(c, dir) {
+    for (let i = 0; i < rows; i++) {
+        if (locked(board[i][c])) return;
+    }
     if (dir > 0) {
         const lastGem = board[rows - 1][c];
         const lastEl = cells[rows - 1][c];
@@ -232,6 +279,7 @@ async function matchCheck() {
             if (r < 0 || r >= rows || c < 0 || c >= cols) return;
             if (visited[r][c]) return;
             if (board[r][c] !== gem) return;
+            if (locked(board[r][c])) return;
 
             visited[r][c] = true;
             group.push([r, c]);
@@ -260,10 +308,28 @@ async function matchCheck() {
         // Mark that THIS MOVE has matches
         moveMadeMatch = true;
 
-        const comboMult = 1 + (1 - 1) * 0.5; // fixed: no cascade combo
+        for (const [r, c] of matched) {
+            const neighbors = [
+                [r + 1, c],
+                [r - 1, c],
+                [r, c + 1],
+                [r, c - 1]
+            ];
+
+            for (const [nr, nc] of neighbors) {
+                if (nr >= 0 && nr < rows &&
+                    nc >= 0 && nc < cols &&
+                    locked(board[nr][nc])
+                ) {
+                    unlock(nr, nc);
+                }
+            }
+        }
+
+        const comboMult = 1 + (totalCombo * 0.5); // fixed: no cascade combo
         totalMoveScore += Math.floor(matched.length * 500 * 1);
 
-        scoreTime = (totalMoveScore/3000) + totalCombo;
+        scoreTime = (totalMoveScore / 3000) + totalCombo/2;
 
         // Fade gems
         matched.forEach(([r, c]) => {
@@ -321,13 +387,29 @@ function refill() {
 
             if (board[r][c] !== "empty") break;
 
-            const gem = randomGem();
+            let lockSpawn = false;
+            let lockChance = Math.min(.25, totalScore / 200000);
+            if (Math.random() < lockChance) {
+                lockSpawn = true;
+            }
+
+            let gem;
+            if (lockSpawn) {
+                gem = "locked";
+                showLockToast();
+            } else {
+                gem = randomGem();
+            }
             board[r][c] = gem;
 
             const el = document.createElement("div");
             el.className = "cell " + gem;
             el.dataset.r = r;
             el.dataset.c = c;
+
+            if (gem === "locked") {
+                el.classList.add("locked");
+            }
 
             el.style.opacity = "0";
             el.style.transform = `translate(${c * cellSize}px, ${-cellSize}px)`;
@@ -341,11 +423,9 @@ function refill() {
                     `translate(${c * cellSize}px, ${r * cellSize}px)`;
                 el.style.opacity = "1";
             });
-
             filled = true;
         }
     }
-
     return filled;
 }
 
@@ -376,10 +456,10 @@ nextC.addEventListener("click", () => { RulesC.close(); RulesD.showModal(); });
 pause.addEventListener("click", pauseGame);
 rules.addEventListener("click", RulesPauseGame);
 
-closeA.addEventListener("click", () => { RulesA.close(); matchCheck(); timerStart();});
-closeB.addEventListener("click", () => { RulesB.close(); matchCheck(); timerStart();});
-closeC.addEventListener("click", () => { RulesC.close(); matchCheck(); timerStart();});
-closeD.addEventListener("click", () => { RulesD.close(); matchCheck(); timerStart();});
+closeA.addEventListener("click", () => { RulesA.close(); matchCheck(); timerStart(); });
+closeB.addEventListener("click", () => { RulesB.close(); matchCheck(); timerStart(); });
+closeC.addEventListener("click", () => { RulesC.close(); matchCheck(); timerStart(); });
+closeD.addEventListener("click", () => { RulesD.close(); matchCheck(); timerStart(); });
 resume.addEventListener("click", resumeGame);
 
 
@@ -460,7 +540,7 @@ grid.addEventListener("mouseup", async e => {
     moveMadeMatch = false;
     await matchCheck();
 
-    if(moveMadeMatch && totalCombo >= 10){
+    if (moveMadeMatch && totalCombo >= 10) {
         addTime(scoreTime);
     }
     else if (moveMadeMatch && totalCombo < 10) {
@@ -475,8 +555,15 @@ grid.addEventListener("dblclick", async e => {
     if (playerLock) return;
     if (!e.target.classList.contains("cell")) return;
 
+    removeTime();
+
     const r = +e.target.dataset.r;
     const c = +e.target.dataset.c;
+
+    if(locked(board[r][c])){
+        unlock(r, c);
+        return;
+    }
 
     board[r][c] = "empty";
     cells[r][c].remove();
@@ -486,7 +573,8 @@ grid.addEventListener("dblclick", async e => {
 
     Update();
     moveMadeMatch = false;
+    totalCombo = 0;
     await matchCheck();
-    if (!moveMadeMatch) totalCombo = 0;
+    totalCombo = 0;
     Update();
 });

@@ -104,6 +104,18 @@ body {
     animation: fadeUp 1s ease-out forwards;
 }
 
+.bad-time-popup {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translateX(-50%);
+    font-size: 2em;
+    color: black;
+    font-weight: bold;
+    text-shadow: 0 0 1px, 0 0 2px red;
+    animation: fadeDown 1s ease-out forwards;
+}
+
 .rulesBox {
     border-radius: 10px;
     background-color: #FFB343;
@@ -181,6 +193,24 @@ body {
     background-image: url("../resources/GemJ.png");
 }
 
+.cell.locked{
+    background: #333;
+    border: 2px solid red;
+}
+
+.lock-toast{
+    position: fixed;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #222;
+    color: goldenrod;
+    border-radius: 12px;
+    box-shadow: 0 0 10px black;
+    z-index: 99999;
+}
+
+
 @keyframes fadeUp {
     from {
         opacity: 1;
@@ -190,6 +220,18 @@ body {
     to {
         opacity: 0;
         transform: translate(-50%, -60px);
+    }
+}
+
+@keyframes fadeDown {
+    from {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translate(-50%, 60px);
     }
 }
 
