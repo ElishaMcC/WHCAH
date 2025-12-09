@@ -73,10 +73,10 @@ function renderLeaderboardSnapshot(snapshot, containerId, playerName, playerScor
     // Render top 10 leaderboard
     const top10 = scores.slice(0, 10);
     top10.forEach((entry, i) => {
-    const isCurrentPlayer = playerName && entry.name === playerName && entry.score === playerScore;
-    const highlight = isCurrentPlayer ? " class='highlight-score'" : "";
-    html += `<div ${highlight}>${i + 1}. ${entry.name} — ${entry.score}</div>`;
-});
+        const isCurrentPlayer = playerName && entry.name === playerName && entry.score === playerScore;
+        const highlight = isCurrentPlayer ? " class='highlight-score'" : "";
+        html += `<div ${highlight}>${i + 1}. ${entry.name} — ${entry.score}</div>`;
+    });
 
 
     // If player is outside top 10, show their rank separately
@@ -180,6 +180,8 @@ const tipList = [
     "In a pinch? Double clicking removes locks from gems",
     "A higher combo grants more time",
     "Try to save bigger matches for when you have a higher combo",
+    "Make multiple matches in one move to earn a chain bonus",
+    "Drop locked gems to the bottom to take care of them later"
 ]
 
 const grid = document.getElementById("grid");
@@ -245,9 +247,12 @@ function Update() {
     document.getElementById('displayMult').textContent = totalCombo;
 }
 
-function showScorePopup(score, mult) {
+function showScorePopup(score, mult, chain = 1) {
     let popup = document.createElement('div');
-    if (mult > 1 && score > 0) {
+    if(chain > 1 && score > 0){
+        popup.textContent = `Chain x${chain}! +${score}`;
+        popup.className = "score-popup chain";
+    }else if (mult > 1 && score > 0) {
         popup.textContent = `Combo ×${1 + (mult * 0.5)}! +${score}`;
         popup.className = 'score-popup';
     } else if (mult <= 1 && score > 0) {
@@ -520,6 +525,7 @@ async function matchCheck() {
     playerLock = true;
 
     let totalMoveScore = 0;
+    let cascadeDepth = 0;
 
     while (true) {
         const matched = [];
@@ -578,8 +584,15 @@ async function matchCheck() {
             }
         }
 
-        const comboMult = 1 + (totalCombo * 0.5); // no cascade combo
-        totalMoveScore += Math.floor(matched.length * 500 * comboMult);
+        // === CHAIN REACTION BONUS ===
+        cascadeDepth++;
+
+        const cascadeBonus = 1 + (cascadeDepth - 1) * 0.2;
+
+        const comboMult = 1 + (totalCombo * 0.5);
+
+        totalMoveScore += Math.floor(matched.length * 500 * comboMult * cascadeBonus);
+
 
         scoreTime = Math.ceil((totalMoveScore / 3000) + totalCombo / 8);
 
@@ -603,7 +616,7 @@ async function matchCheck() {
 
     totalScore += totalMoveScore;
     Update();
-    showScorePopup(totalMoveScore, totalCombo);
+    showScorePopup(totalMoveScore, totalCombo, cascadeDepth);
 
     playerLock = false;
 }

@@ -63,6 +63,10 @@ dialog {
     background: #0a84ff;
 }
 
+.gameOver-tab-btn.active {
+    background: #0a84ff;
+}
+
 .lb-tab {
     display: none;
     background: rgba(0, 0, 0, 0.5);
@@ -169,6 +173,11 @@ dialog {
     font-weight: bold;
     text-shadow: 0 0 1px, 0 0 2px yellow;
     animation: fadeUp 1s ease-out forwards;
+}
+
+.score-popup.chain {
+    color: #ff4444;
+    font-weight: bold;
 }
 
 .time-popup {
