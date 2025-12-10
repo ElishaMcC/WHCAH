@@ -780,7 +780,43 @@ grid.addEventListener("mousedown", e => {
     direction = null;
 });
 
+grid.addEventListener("touchstart", e => {
+    if (playerLock) return;
+    if (!e.target.classList.contains("cell")) return;
+
+    startCell = e.target;
+    startX = e.clientX;
+    startY = e.clientY;
+    dragging = true;
+    direction = null;
+});
+
 grid.addEventListener("mousemove", e => {
+    if (!dragging || playerLock) return;
+
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+
+    const r = +startCell.dataset.r;
+    const c = +startCell.dataset.c;
+
+    if (!direction) {
+        if (Math.abs(dx) > 15) direction = "row";
+        else if (Math.abs(dy) > 15) direction = "col";
+        else return;
+    }
+
+    if (direction === "row" && Math.abs(dx) >= cellSize) {
+        shiftRow(r, Math.sign(dx));
+        startX += Math.sign(dx) * cellSize;
+    }
+
+    if (direction === "col" && Math.abs(dy) >= cellSize) {
+        shiftCol(c, Math.sign(dy));
+        startY += Math.sign(dy) * cellSize;
+    }
+});
+grid.addEventListener("touchmove", e => {
     if (!dragging || playerLock) return;
 
     const dx = e.clientX - startX;
@@ -827,6 +863,27 @@ grid.addEventListener("mouseup", async e => {
     Update();
 });
 
+grid.addEventListener("touchend", async e => {
+    if (!dragging || playerLock) return;
+
+    dragging = false;
+
+    Update();
+
+    moveMadeMatch = false;
+    await matchCheck();
+
+    if (moveMadeMatch && totalCombo >= 10) {
+        addTime(scoreTime);
+    }
+    else if (moveMadeMatch && totalCombo < 10) {
+        totalCombo++;
+        addTime(scoreTime);
+    }
+    else totalCombo = 0;
+    Update();
+});
+
 grid.addEventListener("dblclick", async e => {
     if (playerLock) return;
     if (!e.target.classList.contains("cell")) return;
@@ -851,6 +908,7 @@ grid.addEventListener("dblclick", async e => {
     totalCombo = 0;
     await matchCheck();
 });
+
 
 const restart = document.getElementById("restartBtn");
 restart.addEventListener("click", () => {
