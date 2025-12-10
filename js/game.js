@@ -1,10 +1,7 @@
 // ==========================FIREBASE=============================================
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import { addDoc, collection, getDocs, getFirestore, limit, onSnapshot, orderBy, query } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -73,7 +70,15 @@ function renderLeaderboardSnapshot(snapshot, containerId, playerName, playerScor
     // Render top 10 leaderboard
     const top10 = scores.slice(0, 10);
     top10.forEach((entry, i) => {
-        const isCurrentPlayer = playerName && entry.name === playerName && entry.score === playerScore;
+        let correctId = null;
+
+        // Map containerId → specific ID
+        if (containerId === "alt-daily") correctId = lastSavedScoreIds.daily;
+        if (containerId === "alt-weekly") correctId = lastSavedScoreIds.weekly;
+        if (containerId === "alt-all") correctId = lastSavedScoreIds.all;
+
+        const isCurrentPlayer = entry.id === correctId;
+
         const highlight = isCurrentPlayer ? " class='highlight-score'" : "";
         html += `<div ${highlight}>${i + 1}. ${entry.name} — ${entry.score}</div>`;
     });
@@ -149,21 +154,32 @@ document.querySelectorAll("#tabs .tab-btn")
 
 const backendbtn = document.querySelectorAll(".tab-btn")[2];
 
-async function saveHighScore(name, score, callback) {
+async function saveHighScore(name, score) {
     try {
-        // Daily leaderboard
-        await addDoc(dailyL, { name, score, timestamp: new Date() });
-        // Weekly leaderboard
-        await addDoc(weeklyL, { name, score, timestamp: new Date() });
-        // All-time leaderboard
-        await addDoc(allTimeL, { name, score, timestamp: new Date() });
+        const timestamp = new Date();
+
+        const dailyDoc = await addDoc(dailyL, { name, score, timestamp });
+        const weeklyDoc = await addDoc(weeklyL, { name, score, timestamp });
+        const allDoc = await addDoc(allTimeL, { name, score, timestamp });
 
         console.log("Score saved successfully!");
-        if (callback) callback();
+
+        // Save IDs for highlighting later
+        lastSavedScoreIds = {
+            daily: dailyDoc.id,
+            weekly: weeklyDoc.id,
+            all: allDoc.id
+        };
+
+        return true;
+
     } catch (err) {
         console.error("Error saving score:", err);
+        return false;
     }
 }
+let lastSavedScoreIds = { daily: null, weekly: null, all: null };
+
 
 // ======================= CONSTANTS & VARIABLES ==========================
 const rows = 6;
@@ -249,10 +265,10 @@ function Update() {
 
 function showScorePopup(score, mult, chain = 1) {
     let popup = document.createElement('div');
-    if(chain > 1 && score > 0){
+    if (chain > 1 && score > 0) {
         popup.textContent = `Chain x${chain}! +${score}`;
         popup.className = "score-popup chain";
-    }else if (mult > 1 && score > 0) {
+    } else if (mult > 1 && score > 0) {
         popup.textContent = `Combo ×${1 + (mult * 0.5)}! +${score}`;
         popup.className = 'score-popup';
     } else if (mult <= 1 && score > 0) {
@@ -563,7 +579,7 @@ async function matchCheck() {
 
         if (matched.length === 0) break;
 
-        // Mark that THIS MOVE has matches
+        // Mark that this move has matches
         moveMadeMatch = true;
 
         for (const [r, c] of matched) {
